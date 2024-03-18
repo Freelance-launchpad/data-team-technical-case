@@ -1,6 +1,7 @@
 from pathlib import Path
 import duckdb
 from textwrap import dedent
+from typing import overload, Literal, Any
 
 
 class DuckDB:
@@ -25,6 +26,18 @@ class DuckDB:
                 """).format(schema=schema)
             )
 
-    def execute(self, sql: str) -> None:
+    @overload
+    def execute(self, sql: str, *, fetch: Literal[False]) -> None:
+        ...
+
+    @overload
+    def execute(self, sql: str, *, fetch: Literal[True]) -> list[dict[str, Any]]:
+        ...
+
+    def execute(self, sql: str, fetch: bool = False) -> None | list[dict[str, Any]]:
         if ( connection := self._connection ):
-            connection.execute(sql)
+            connection = connection.execute(sql)
+            if fetch:
+                column_names = [column[0] for column in connection.description]
+                return [dict(zip(column_names, row)) for row in connection.fetchall()]
+        return None

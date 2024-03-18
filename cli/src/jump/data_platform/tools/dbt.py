@@ -1,8 +1,23 @@
 from pathlib import Path
-from subprocess import run
+from subprocess import run, CompletedProcess
 from tempfile import TemporaryDirectory
 import yaml
 from os import environ
+from enum import StrEnum, auto
+from dataclasses import dataclass
+import json
+
+class ResourceType(StrEnum):
+
+    ANALYSIS = auto()
+
+
+@dataclass
+class Resource():
+
+    name: str
+
+    file_path: Path
 
 
 class DBT:
@@ -27,12 +42,27 @@ class DBT:
             case list():
                 select_args = [f"--select={value}" for value in select]
 
+        self._execute(["build"] + selector_args + select_args)
+
+    def compile(self) -> None:
+        self._execute(["compile"])
+
+    def ls(self, /, *, resource_type: ResourceType | None) -> list[Resource]:
+        resource_type_args = [f"--resource-type={resource_type}"] if resource_type else []
+        process = self._execute(["ls"] + resource_type_args + ["--output=json", "--quiet"], capture_output=True, text=True)
+        stdout = process.stdout
+        lines = stdout.splitlines()
+        objs = [json.loads(line) for line in lines]
+        resources = [Resource(name=obj["name"], file_path=Path(obj["original_file_path"])) for obj in objs]
+        return resources
+        
+    def _execute(self, other_args: list[str], **run_kwargs) -> CompletedProcess:
         profile_args = ["--profile=transient", "--target=transient"]
         
-        command = ["dbt", "build"] + selector_args + select_args + profile_args
+        command = ["dbt"] + other_args + profile_args
 
-        with TemporaryDirectory(prefix="dbt_") as temp_folder_path:
-            temp_folder_path = Path(temp_folder_path)
+        with TemporaryDirectory(prefix="dbt_") as temp_folder_path_str:
+            temp_folder_path = Path(temp_folder_path_str)
 
             profiles = {
                 "transient": {
@@ -48,17 +78,16 @@ class DBT:
             with ( temp_folder_path / "profiles.yml" ).open("w") as stream:
                 yaml.dump(profiles, stream)
 
-            process = run(
+            run(
                 ["dbt", "deps"], 
                 env=environ | {
                     "DBT_PROJECT_DIR": f"{self._project_folder_path}",
                     "DBT_PROFILES_DIR": f"{temp_folder_path}",
                     "DBT_TARGET_PATH": f"{self._target_folder_path}",
                     "DBT_LOG_PATH": f"{self._log_folder_path}",
-                }
+                },
+                check=True
             )
-            if process.returncode != 0:
-                raise RuntimeError(f"DBT command failed with exit code {process.returncode}!")
 
             process = run(
                 command, 
@@ -67,10 +96,9 @@ class DBT:
                     "DBT_PROFILES_DIR": f"{temp_folder_path}",
                     "DBT_TARGET_PATH": f"{self._target_folder_path}",
                     "DBT_LOG_PATH": f"{self._log_folder_path}",
-                }
+                }, 
+                check=True, 
+                **run_kwargs,
             )
 
-            if process.returncode != 0:
-                raise RuntimeError(f"DBT command failed with exit code {process.returncode}!")
-
-    
+            return process

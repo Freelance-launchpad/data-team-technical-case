@@ -1,5 +1,5 @@
 {{ config(
-    alias="freelances",
+    alias="freelancers",
 ) }}
 
 
@@ -10,4 +10,4 @@ SELECT
     b.email,
     b.satisfaction_score
 FROM
-    {{ ref("intermediate__base__freelances") }} b
+    {{ ref("intermediate__base__freelancers") }} b

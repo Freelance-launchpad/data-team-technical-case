@@ -1,0 +1,9 @@
+name: pipeline
+on:
+- push
+
+jobs:
+  dummy:
+    runs-on: ubuntu
+    steps:
+    - run: echo "Hello, world!"

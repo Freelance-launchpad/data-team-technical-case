@@ -11,6 +11,6 @@ SELECT
 FROM
     {{ ref("staging__app__job_contracts") }} jc
 LEFT JOIN
-    {{ ref("intermediate__base__freelances") }} f
+    {{ ref("intermediate__base__freelancers") }} f
 ON
     f.__.app.user_id = jc.user_id

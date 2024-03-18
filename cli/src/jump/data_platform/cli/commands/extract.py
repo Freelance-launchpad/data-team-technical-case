@@ -5,12 +5,24 @@ from enum import StrEnum, auto
 from textwrap import dedent
 from csv import DictWriter
 from halo import Halo
+from dataclasses import dataclass
 
 from ...sources.app import App
 from ...sources.crm import CRM
 
 from .source import Source
 
+
+@dataclass
+class Spec():
+
+    table_name: str
+    
+    list_objs: Callable[[], list[Any]]
+
+    column_names: list[str]
+
+    transform_obj: Callable[[Any], dict[str, Any]]
 
 
 @command()
@@ -55,24 +67,24 @@ def extract(context: Context, source_folder_path: Path | None, sources: list[Sou
                 app = App(faker=context.obj.faker)
 
                 specs = [
-                    ("users", lambda: app.list_users(), ["id", "first_name", "last_name", "email"], lambda user: {
+                    Spec("users", lambda: app.list_users(), ["id", "first_name", "last_name", "email"], lambda user: {
                         "id": user.id,
                         "first_name": user.first_name,
                         "last_name": user.last_name,
                         "email": user.email,
                     }),
-                    ("job_contracts", lambda: app.list_job_contracts(), ["id", "user_id", "entity", "start_date", "end_date"], lambda job_contract: {
+                    Spec("job_contracts", lambda: app.list_job_contracts(), ["id", "user_id", "entity", "start_date", "end_date"], lambda job_contract: {
                         "id": job_contract.id,
                         "user_id": job_contract.user.id,
                         "entity": job_contract.entity,
                         "start_date": job_contract.start_date.format("YYYY-MM-DD"),
                         "end_date": job_contract.end_date.format("YYYY-MM-DD") if ( end_date := job_contract.end_date ) else None,
                     }),
-                    ("clients", lambda: app.list_clients(), ["id", "name"], lambda client: {
+                    Spec("clients", lambda: app.list_clients(), ["id", "name"], lambda client: {
                         "id": client.id,
                         "name": client.name,
                     }),
-                    ("invoices", lambda: app.list_invoices(), ["id", "job_contract_id", "client_id", "reference", "amount", "issue_date"], lambda invoice: {
+                    Spec("invoices", lambda: app.list_invoices(), ["id", "job_contract_id", "client_id", "reference", "amount", "issue_date"], lambda invoice: {
                         "id": invoice.id,
                         "job_contract_id": invoice.job_contract.id,
                         "client_id": invoice.client.id,
@@ -82,16 +94,16 @@ def extract(context: Context, source_folder_path: Path | None, sources: list[Sou
                     }),
                 ]
 
-                for table_name, list_objs, column_names, transform_obj in specs:
-                    spinner = Halo(text=f"Extracting App table {table_name} to CSV file... ", spinner="dots")
+                for spec in specs:
+                    spinner = Halo(text=f"Extracting App table {spec.table_name} to CSV file... ", spinner="dots")
                     spinner.start()
                     write_csv_file(
-                        source_folder_path / f"{table_name}.csv", 
-                        list_objs(), 
-                        column_names, 
-                        transform_obj,
+                        source_folder_path / f"{spec.table_name}.csv", 
+                        spec.list_objs(), 
+                        spec.column_names, 
+                        spec.transform_obj,
                     )
-                    spinner.stop_and_persist(symbol="✅".encode('utf-8'), text=f"Successfully extracted App table {table_name} to CSV file! ")
+                    spinner.stop_and_persist(symbol="✅".encode('utf-8'), text=f"Successfully extracted App table {spec.table_name} to CSV file! ")
                 
             case _:
                 raise Exception(f"Unknown source! ")

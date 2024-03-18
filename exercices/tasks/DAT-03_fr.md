@@ -17,5 +17,5 @@ A noter que même si un freelance n'a pas d'activité pour un mois donné (ie. p
 
 
 ## Tips
-1) Tu peux t'appuyer sur les modèles [`intermediate__freelances`](../../dbt/models/intermediate/intermediate__freelances.sql), [`intermediate__job_contracts`](../../dbt/models/intermediate/intermediate__job_contracts.sql) et [`intermediate__invoices`](../../dbt/models/intermediate/intermediate__invoices.sql) ;
-2) Tu peux écrire la requête SQL dans [ce fichier](../../dbt/analyses/DAT-03.sql)
+1) Tu peux t'appuyer sur les modèles [`intermediate__freelancers`](../../dbt/models/intermediate/intermediate__freelancers.sql), [`intermediate__job_contracts`](../../dbt/models/intermediate/intermediate__job_contracts.sql) et [`intermediate__invoices`](../../dbt/models/intermediate/intermediate__invoices.sql) ;
+2) Tu peux écrire la requête SQL dans [ce fichier](../../dbt/analyses/turnovers_by_cohort_for_auditor.sql)

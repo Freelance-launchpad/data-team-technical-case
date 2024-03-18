@@ -2,7 +2,7 @@ version: 2
 
 
 models:
-- name: intermediate__freelances
+- name: intermediate__freelancers
   columns:
   - name: sk
     tests:
