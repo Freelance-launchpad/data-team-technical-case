@@ -40,7 +40,7 @@ class App:
                 while True:
                     # We need a month with no invoices
                     today_date = today().date()
-                    issue_date = self._random_date_between(job_contract.start_date, today_date)
+                    issue_date = self._random_date_between(job_contract.start_date, job_contract.end_date or today_date)
                     if issue_date.start_of("month") == Date(2032, 10, 1):
                         continue
 
@@ -101,16 +101,6 @@ class App:
         )
         date = date_time.date()
         return date
-
-    def _random_job_contract(self) -> JobContract:
-        start_date = self._random_date()
-        end_date = self._faker.date_between(start_date=start_date, end_date=start_date.add(months=6)) if self._faker.boolean() else None
-        entity = self._faker.random_element(Entity)
-        return JobContract(
-            entity=entity,
-            start_date=start_date, 
-            end_date=end_date,
-        )
     
     @cache
     def list_users(self, sample_size=1000) -> list[User]:

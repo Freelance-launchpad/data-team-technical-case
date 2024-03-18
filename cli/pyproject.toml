@@ -30,3 +30,9 @@ data-platform = "jump.data_platform.cli:app"
 package-dir = "src" 
 includes = ["src/jump"]
 
+[[tool.mypy.overrides]]
+module = [
+    "halo",
+]
+ignore_missing_imports = true
+

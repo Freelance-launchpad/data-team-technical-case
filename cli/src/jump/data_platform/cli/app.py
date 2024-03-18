@@ -5,7 +5,7 @@ from pathlib import Path
 
 from ..version import __version__
 
-from .commands import extract, load, transform
+from .commands import extract, load, transform, export
 
 
 @group(chain=True)
@@ -25,5 +25,5 @@ def app(context: Context, random_seed: int, project_folder_path: Path, data_fold
     context.obj.log_folder_path = log_folder_path
 
 
-for command in [extract, load, transform]:
+for command in [extract, load, transform, export]:
     app.add_command(command)

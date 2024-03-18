@@ -35,7 +35,7 @@ build: ## Construit l'image Docker qui embarque la CLI, le projet DBT, etc.
 
 ##@ Run
 .PHONY: refresh
-refresh: extract load transform ## Lance successivement l'extraction, le chargement et les transformations
+refresh: extract load transform export ## Lance successivement l'extraction, le chargement, les transformations et l'export des données
 
 
 .PHONY: extract
@@ -73,6 +73,17 @@ transform: ## Intègre les données de la couche Sources dans les couches Stagin
 		"$(DOCKER_REPOSITORY)" \
 			transform
 
+.PHONY: export
+export: ## Export les analyses au format CSV 
+	mkdir -p "./data"
+	docker run \
+		--rm \
+		--user "$(UID):$(GID)" \
+		--volume "$(PWD)/data:/var/local/lib/data-platform" \
+		--volume "$(PWD)/dbt:/usr/local/lib/data-platform/dbt" \
+		"$(DOCKER_REPOSITORY)" \
+			export
+
 
 .PHONY: query
 query: ## Lance un REPL pour requêter le lakehouse (via DuckDB)
@@ -89,6 +100,20 @@ query: ## Lance un REPL pour requêter le lakehouse (via DuckDB)
 			"/var/local/lib/data-platform/lakehouse/lakehouse.duckdb" \
 				-cmd 'USE intermediate; SHOW TABLES;'
 
+
+.PHONY: compile-model
+compile-model:
+	docker run \
+		--rm \
+		--user "$(UID):$(GID)" \
+		--volume "$(PWD)/data:/var/local/lib/data-platform" \
+		--volume "$(PWD)/dbt:/usr/local/lib/data-platform/dbt" \
+		--workdir "/usr/local/lib/data-platform/dbt" \
+		--entrypoint "/usr/local/lib/data-platform/venv/bin/dbt" \
+		"$(DOCKER_REPOSITORY)" \
+			compile \
+				--select="$(MODEL)" \
+				--profile-dir
 
 
 ##@ Divers

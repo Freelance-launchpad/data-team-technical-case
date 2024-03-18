@@ -10,7 +10,7 @@ Tu dois créer un model qui permet d'avoir accès à cet indicateur.
 
 
 ## Tips
-1) Le score de satisfaction est un entier qui se trouve dans la colonne `satisfaction_score` du modèle [`intermediate__freelances`](../dbt/models/intermediate/intermediate__freelances.sql#L11)
+1) Le score de satisfaction est un entier qui se trouve dans la colonne `satisfaction_score` du modèle [`intermediate__freelancers`](../dbt/models/intermediate/intermediate__freelancers.sql#L11)
 2) Tu peux écrire le model dans [ce fichier](../../dbt/models/marts/kpi/marts__kpi__nps.sql)
 
 > 💡 Les données ne sont pas historisées, c'est donc normal que tu n'aies en résultat qu'un nombre seul, sans aucune dimension.
