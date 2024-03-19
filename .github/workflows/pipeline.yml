@@ -1,9 +1,67 @@
-name: pipeline
+name: Pipeline to build and refresh the Data Platform
 on:
 - push
 
+concurrency:
+  group: ${{ github.workflow }}-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: true
+
 jobs:
-  dummy:
-    runs-on: ubuntu
+  build:
+    runs-on: ubuntu-latest
     steps:
-    - run: echo "Hello, world!"
+    - uses: actions/checkout@v4
+    - uses: awalsh128/cache-apt-pkgs-action@latest
+      with:
+        packages: make
+        version: 1.0
+    - uses: docker/setup-buildx-action@v3
+    - name: Build the Data Platform
+      run: make build
+    - name: Export the Docker image
+      run: |
+        mkdir -p "./docker-images/jump"
+        docker save --output="./docker-images/jump/data-platform.tar" "jump/data-platform:latest"
+    - name: Upload the Docker images
+      uses: actions/upload-artifact@v4
+      with:
+        name: docker-images
+        path: "./docker-images"
+        retention-days: 2
+  
+  refresh:
+    needs:
+    - build
+    runs-on: ubuntu-latest
+    steps:
+    - name: Checkout the code
+      uses: actions/checkout@v4
+    - name: Install Make
+      uses: awalsh128/cache-apt-pkgs-action@latest
+      with:
+        packages: make
+        version: 1.0
+    - name: Install Docker
+      uses: docker/setup-buildx-action@v3
+    - name: Download the Docker images
+      uses: actions/download-artifact@v4
+      with:
+        name: docker-images
+        path: "./docker-images"
+    - name: Import the Docker image
+      run: docker load --input "./docker-images/jump/data-platform.tar"
+    - name: Refresh the Data Platform
+      run: make refresh
+    - name: Upload the Lakehouse
+      uses: actions/upload-artifact@v4
+      with:
+        name: lakehouse
+        path: "./data/lakehouse"
+        retention-days: 2
+    - name: Upload the exports
+      uses: actions/upload-artifact@v4
+      with:
+        name: exports
+        path: "./data/exports"
+        retention-days: 2
+
