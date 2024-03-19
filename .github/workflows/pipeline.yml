@@ -3,7 +3,7 @@ on:
 - push
 
 jobs:
-  pipeline:
+  build:
     runs-on: ubuntu-latest
     steps:
     - uses: actions/checkout@v4
@@ -12,4 +12,29 @@ jobs:
         packages: make
         version: 1.0
     - uses: docker/setup-buildx-action@v3
-    - run: make
+    - run: make build
+    - run: docker export "jump/data-platform" | gzip >"./data-platform.gz"
+    - uses: actions/upload-artifact@v4
+      with:
+        name: docker-image
+        path: "./data-platform.gz"
+        retention-days: 2
+  
+  refresh:
+    depends-on:
+    - build
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v4
+    - uses: awalsh128/cache-apt-pkgs-action@latest
+      with:
+        packages: make
+        version: 1.0
+    - uses: docker/setup-buildx-action@v3
+    - uses: actions/download-artifact@v4
+      with:
+        name: docker-image
+        path: "./data-platform.gz"
+    - run: gunzip -c "./data-platform.gz" | docker load
+    - run: make refresh
+
