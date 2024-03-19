@@ -22,7 +22,7 @@ jobs:
     - name: Export the Docker image
       run: |
         mkdir -p "./docker-images/jump"
-        docker export --output="./docker-images/jump/data-platform.tar" "jump/data-platform:latest"
+        docker save --output="./docker-images/jump/data-platform.tar" "jump/data-platform:latest"
     - uses: actions/upload-artifact@v4
       with:
         name: docker-images
