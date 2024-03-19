@@ -1,4 +1,4 @@
-name: pipeline
+name: Pipeline to build and refresh the Data Platform
 on:
 - push
 
@@ -8,6 +8,8 @@ concurrency:
 
 jobs:
   build:
+    needs:
+    - check
     runs-on: ubuntu-latest
     steps:
     - uses: actions/checkout@v4
