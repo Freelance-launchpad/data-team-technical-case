@@ -20,11 +20,13 @@ jobs:
       run: make build
     - run: docker images
     - name: Export the Docker image
-      run: docker export "jump/data-platform:latest" >"./docker-image.tar"
+      run: |
+        mkdir -p "./docker-images/jump"
+        docker export --output="./docker-images/jump/data-platform.tar" "jump/data-platform:latest"
     - uses: actions/upload-artifact@v4
       with:
-        name: docker-image
-        path: "./docker-image.tar"
+        name: docker-images
+        path: "./docker-images"
         retention-days: 2
   
   refresh:
@@ -40,10 +42,10 @@ jobs:
     - uses: docker/setup-buildx-action@v3
     - uses: actions/download-artifact@v4
       with:
-        name: docker-image
-        path: "./docker-image.tar"
+        name: docker-images
+        path: "./docker-images"
     - name: Import the Docker image
-      run: docker load --input "./docker-image.tar"
+      run: docker load --input "./docker-images/jump/data-platform.tar"
     - name: Refresh the Data Platform
       run: make refresh
     - run: find "."
