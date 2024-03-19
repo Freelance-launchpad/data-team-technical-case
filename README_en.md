@@ -77,4 +77,10 @@ The following targets are available:
 
 > Feel free to explore the data by navigating through the [DBT project](./dbt/) and querying tables with `make query`.
 
+Please note that a [GitHub Action workflow](https://github.com/Freelance-launchpad/data-team-technical-case/actions) has also been setup. Its goals are :
+* Running the commands defined above
+* Make available the DBT analysis exports (as CSV files) and the Lakehouse itself (as a DuckDB database)
+
+> 💡 Be sure that all the modifications you're making don't break the workflow!
+
 > ❓ Is everything clear? If so, find the exercises to complete [here](./exercices/positions/data-analyst_en.md)! 

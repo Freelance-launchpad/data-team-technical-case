@@ -19,3 +19,4 @@ A noter que même si un freelance n'a pas d'activité pour un mois donné (ie. p
 ## Tips
 1) Tu peux t'appuyer sur les modèles [`intermediate__freelancers`](../../dbt/models/intermediate/intermediate__freelancers.sql), [`intermediate__job_contracts`](../../dbt/models/intermediate/intermediate__job_contracts.sql) et [`intermediate__invoices`](../../dbt/models/intermediate/intermediate__invoices.sql) ;
 2) Tu peux écrire la requête SQL dans [ce fichier](../../dbt/analyses/turnovers_by_cohort_for_auditor.sql)
+3) L'analyse va être lancée et exportée au format CSV durant la phase d'export (qui est églament lancée par GitHub Actions)
