@@ -21,7 +21,7 @@ jobs:
         retention-days: 2
   
   refresh:
-    depends-on:
+    needs:
     - build
     runs-on: ubuntu-latest
     steps:
