@@ -84,6 +84,6 @@ A noter qu'un [workflow GitHub Action](https://github.com/Freelance-launchpad/da
 * Lancer les commandes ci-dessus
 * Mettre à disposition les exports des analyses DBT (au format CSV) et le Lakehouse (au format DuckDB)
 
-> 💡 Assure-toi bien que les modifications que tu apportes au projet ne mettent pas la le workflow en échec !
+> 💡 Assure-toi bien que les modifications que tu apportes au projet ne mettent pas le workflow en échec !
 
 > ❓ Tout est clair ? Si oui, retrouve [ici](./exercices/positions/data-analyst_fr.md) les exercices à réaliser ! 
